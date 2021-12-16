@@ -8,4 +8,9 @@ GomokuClient/packages/
 /GomokuClient/GomokuClient/x64/Debug
 /GomokuClient/x64
 bin/FlexMatch/GomokuServer/vc_redist.x64.exe
-
+GomokuClient/.vs/
+GomokuServer/x64
+GomokuServer/GomokuServer/x64
+GomokuServer/GomokuServer.sdf
+GomokuClient/GomokuClient.sdf
+GomokuServer/GomokuServer.opensdf

@@ -68,6 +68,14 @@
     #endif
 #endif
 
+ // declval example
+#include <utility> // std::declval
+#include <iostream> // std::cout
+template<class T>
+typename std::add_rvalue_reference<T>::type declval() noexcept;
+
+using namespace std;
+
 namespace json11 {
 
 enum JsonParse {
@@ -101,6 +109,30 @@ public:
     Json(const object &values);     // OBJECT
     Json(object &&values);          // OBJECT
 
+	// Implicit constructor: anything with a to_json() function.
+	template <class T, class = decltype(&T::to_json)>
+	Json(const T & t) : Json(t.to_json()) {}
+
+	// Implicit constructor: map-like objects (std::map, std::unordered_map, etc)
+	template <class M, typename std::enable_if<
+		std::is_constructible<std::string, typename M::key_type>::value
+		&& std::is_constructible<Json, typename M::mapped_type>::value,
+		int>::type = 0>
+		Json(const M & m) : Json(object(m.begin(), m.end())) {}
+
+	// Implicit constructor: vector-like objects (std::list, std::vector, std::set, etc)
+	template <class V, typename std::enable_if<
+		std::is_constructible<Json, typename V::value_type>::value,
+		int>::type = 0>
+		Json(const V & v) : Json(array(v.begin(), v.end())) {}
+
+	// This prevents Json(some_pointer) from accidentally producing a bool. Use
+	// Json(bool(some_pointer)) if that behavior is desired.
+	Json(void *) = delete;
+
+	// Accessors
+	Type type() const;
+/*
     // Implicit constructor: anything with a to_json() function.
     template <class T, class = decltype(&T::to_json)>
     Json(const T & t) : Json(t.to_json()) {}
@@ -124,7 +156,7 @@ public:
 
     // Accessors
     Type type() const;
-
+	*/
     bool is_null()   const { return type() == NUL; }
     bool is_number() const { return type() == NUMBER; }
     bool is_bool()   const { return type() == BOOL; }
