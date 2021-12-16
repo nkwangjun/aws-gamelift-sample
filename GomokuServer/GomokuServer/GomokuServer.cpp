@@ -62,6 +62,8 @@ int main(int argc, char* argv[])
 
 		GGameLiftManager->SetSQSClientInfo(sqs_region, sqs_endpoint, sqs_role);
 
+		GGameLiftManager->OnStartGameSession(Aws::GameLift::Server::Model::GameSession());
+
 		/// Global Managers
 		GIocpManager.reset(new IocpManager);
 

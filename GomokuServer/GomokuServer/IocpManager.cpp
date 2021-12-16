@@ -114,7 +114,6 @@ void IocpManager::StartAccept()
 			newSession->Disconnect(DR_ONCONNECT_ERROR);
 		}
 		GConsoleLog->PrintOut(true, "[INFO] Accept\n");
-		Sleep(100000);
 	}
 }
 

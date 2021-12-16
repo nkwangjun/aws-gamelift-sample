@@ -152,7 +152,7 @@ void GUIController::OnMenuEvent(int menuId)
     }
 
 
-    //glutPostRedisplay();
+    glutPostRedisplay();
 }
 
 void GUIController::OnRenderBoard()

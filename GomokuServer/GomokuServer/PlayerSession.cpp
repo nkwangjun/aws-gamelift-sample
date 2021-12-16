@@ -37,6 +37,7 @@ void PlayerSession::LocalPlayerReady(const std::string& playerId)
 	mPlayerSessionId = playerId;
 	mPlayerName = playerId;
 	mScore = 98;
+	GGameLiftManager->AcceptPlayerSession(std::static_pointer_cast<PlayerSession>(shared_from_this()), playerId);
 	GConsoleLog->PrintOut(true, "[PLAYER] PlayerReady: %s \n", playerId.c_str());
 	return;
 }

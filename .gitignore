@@ -17,3 +17,5 @@ GomokuServer/GomokuServer.opensdf
 GomokuClient/ipch/
 GomokuServer/.vs/
 GomokuServer/ipch/
+GomokuClient/GomokuClient.opensdf
+GomokuMatchMaker/

@@ -102,7 +102,7 @@ bool MatchController::LocalCheckMatchStatus()
 	bool completed = false;
 
 	std::string ipAddr = "127.0.0.1";
-	std::string psessId = "psessId001";
+	std::string psessId = GGuiController->GetPlayerName();
 	int port = 1234;
 
 	if (port > 0)

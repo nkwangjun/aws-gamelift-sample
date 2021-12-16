@@ -47,7 +47,7 @@ static Aws::Config::Profile GetCurrentProfile(void);
 Aws::Auth::AWSCredentials GetAWSCredentials(std::string);
 //
 
-GameLiftManager::GameLiftManager() : mActivated(false), mCheckTerminationCount(0), mPlayerReadyCount(0)
+GameLiftManager::GameLiftManager() : mActivated(true), mCheckTerminationCount(0), mPlayerReadyCount(0)
 {
 }
 
@@ -148,17 +148,8 @@ void GameLiftManager::FinalizeGameLift()
 bool GameLiftManager::AcceptPlayerSession(std::shared_ptr<PlayerSession> psess, const std::string& playerSessionId)
 {
 	FastSpinlockGuard lock(mLock);
-
-	auto outcome = Aws::GameLift::Server::AcceptPlayerSession(playerSessionId);
-
-	if (outcome.IsSuccess())
-	{
-		mGameSession->PlayerEnter(psess);
-		return true;
-	}
-
-	GConsoleLog->PrintOut(true, "[GAMELIFT] AcceptPlayerSession Fail: %s\n", outcome.GetError().GetErrorMessage().c_str());
-	return false;
+	mGameSession->PlayerEnter(psess);
+	return true;
 }
 
 void GameLiftManager::RemovePlayerSession(std::shared_ptr<PlayerSession> psess, const std::string& playerSessionId)
@@ -191,12 +182,9 @@ void GameLiftManager::RemovePlayerSession(std::shared_ptr<PlayerSession> psess, 
 void GameLiftManager::OnStartGameSession(Aws::GameLift::Server::Model::GameSession myGameSession)
 {
 	FastSpinlockGuard lock(mLock);
-	Aws::GameLift::Server::ActivateGameSession();
 
 	/// create a game session
 	mGameSession = std::make_shared<GameSession>();
-
-	mMatchMakerData = myGameSession.GetMatchmakerData();
 
 	GConsoleLog->PrintOut(true, "[GAMELIFT] OnStartGameSession Success\n");
 }
