@@ -14,3 +14,6 @@ GomokuServer/GomokuServer/x64
 GomokuServer/GomokuServer.sdf
 GomokuClient/GomokuClient.sdf
 GomokuServer/GomokuServer.opensdf
+GomokuClient/ipch/
+GomokuServer/.vs/
+GomokuServer/ipch/

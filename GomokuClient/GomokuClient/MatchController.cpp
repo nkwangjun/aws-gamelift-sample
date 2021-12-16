@@ -43,7 +43,6 @@ std::string ws2s(const std::wstring& wstr)
     return converter.to_bytes(wstr);
 }
 
-
 void MatchController::RequestMatch()
 {
     if (mMatchStarted)
@@ -56,7 +55,6 @@ void MatchController::RequestMatch()
 
     auto reqEndpoint = s2ws(mMatchApiEndpoint) + std::wstring(L"/matchrequest");
     http_client client(reqEndpoint);
-
 
     client.request(methods::POST, L"", postData.serialize().c_str(), L"application/json").then([this](http_response response) {
 
@@ -96,6 +94,55 @@ void MatchController::RequestMatch()
 
     });
 
+
+}
+
+bool MatchController::LocalCheckMatchStatus()
+{
+	bool completed = false;
+
+	std::string ipAddr = "127.0.0.1";
+	std::string psessId = "psessId001";
+	int port = 1234;
+
+	if (port > 0)
+	{
+		completed = true;
+		if (GGameServer->Connect(ipAddr, port))
+		{
+			GGameServer->RequestGameStart(psessId);
+		}
+		else
+		{
+			std::cout << "GameServer Connect Error\n";
+		}
+	}
+
+	return completed;
+}
+
+void  MatchController::LocalMatch() {
+	if (mMatchStarted)
+		return;
+
+	mMatchStarted = true;
+
+	mMatchTicketId = "matchId0001";
+
+	mMatchTicketId.erase(0, 1);
+	mMatchTicketId.erase(mMatchTicketId.size() - 1);
+
+	GGuiController->OnMatchWait(true);
+
+	while (true)
+	{
+		Sleep(1000);
+		if (LocalCheckMatchStatus())
+		{
+			GGuiController->OnMatchComplete();
+			break;
+		}
+	}
 }
 
 bool MatchController::CheckMatchStatus()
@@ -136,6 +183,7 @@ bool MatchController::CheckMatchStatus()
 
     return completed;
 }
+
 
 void MatchController::ResetMatch()
 {

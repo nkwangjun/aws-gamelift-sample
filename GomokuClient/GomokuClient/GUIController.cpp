@@ -142,17 +142,17 @@ void GUIController::OnMenuEvent(int menuId)
     {
         if (mGameStatus == GameStatus::GS_NOT_STARTED)
         {
-            GMatchMaker->RequestMatch();
+            GMatchMaker->LocalMatch();
         }
         else if (mGameStatus == GameStatus::GS_GAME_OVER_BLACK_WIN || mGameStatus == GameStatus::GS_GAME_OVER_WHITE_WIN)
         {
             ResetStatus();
-            GMatchMaker->RequestMatch();
+            GMatchMaker->LocalMatch();
         }
     }
 
 
-    glutPostRedisplay();
+    //glutPostRedisplay();
 }
 
 void GUIController::OnRenderBoard()

@@ -70,7 +70,7 @@ void Session::Disconnect(DisconnectReason dr)
 
 	GConsoleLog->PrintOut(true, "[DEBUG] Client Disconnected: Reason=%d IP=%s, PORT=%d \n", dr, inet_ntoa(mClientAddr.sin_addr), ntohs(mClientAddr.sin_port));
 
-	OnDisconnect(dr);
+	OnLocalDisconnect(dr);
 
 	closesocket(mSocket);
 

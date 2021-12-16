@@ -35,6 +35,9 @@ public:
     const std::string& GetPlayerName() { return mPlayerName; }
     int GetPlayerScore() const { return mScore; }
 
+	void LocalPlayerReady(const std::string& playerId);
+	virtual void OnLocalDisconnect(DisconnectReason dr);
+
 private:
 
     std::string mPlayerSessionId;

@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 		Aws::SDKOptions options;
 		Aws::InitAPI(options);
 
-		int portNum = 0;
+		int portNum = 1234;
 		/// listen port override rather than dynamic port by OS
 		if (argc >= 2)
 			portNum = atoi(argv[1]);
@@ -69,8 +69,10 @@ int main(int argc, char* argv[])
 			return -1;
 
 		/// Gamelift init/start!
+		/*
 		if (false == GGameLiftManager->InitializeGameLift(portNum))
 			return -1;
+		*/
 
 		if (false == GIocpManager->StartIoThreads())
 			return -1;
@@ -84,11 +86,11 @@ int main(int argc, char* argv[])
 		GIocpManager->Finalize();
 
 		/// Gamelift end!
-		GGameLiftManager->FinalizeGameLift();
+		//GGameLiftManager->FinalizeGameLift();
 
 		GConsoleLog->PrintOut(true, "End Server\n");
 
-		Aws::ShutdownAPI(options);
+		//Aws::ShutdownAPI(options);
 
 		return 0;
 	}

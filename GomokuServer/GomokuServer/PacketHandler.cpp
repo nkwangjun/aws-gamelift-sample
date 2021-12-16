@@ -94,7 +94,7 @@ REGISTER_HANDLER(PKT_CS_START)
         return;
     }
 
-    session->PlayerReady(std::string(inPacket.mPlayerId));
+    session->LocalPlayerReady(std::string(inPacket.mPlayerId));
 }
 
 REGISTER_HANDLER(PKT_CS_EXIT)

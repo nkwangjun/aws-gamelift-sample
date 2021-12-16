@@ -29,6 +29,10 @@ public:
 
     void ResetMatch();
 
+	void LocalMatch();
+
+	bool LocalCheckMatchStatus();
+
 private:
 
     const std::string mMatchApiEndpoint;

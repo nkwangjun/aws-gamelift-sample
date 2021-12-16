@@ -57,6 +57,8 @@ bool IocpManager::Initialize(int& listenPort)
 
 	listenPort = ntohs(serveraddr.sin_port);
 
+	std::cout << "listenPort:" << listenPort;
+
 	return true;
 }
 
@@ -94,7 +96,7 @@ void IocpManager::StartAccept()
 		GConsoleLog->PrintOut(true, "[DEBUG] listen error\n");
 		return;
 	}
-		
+
 	/// accept loop
 	while (true)
 	{
@@ -104,18 +106,16 @@ void IocpManager::StartAccept()
 			GConsoleLog->PrintOut(true, "accept: invalid socket\n");
 			continue;
 		}
-
 		/// accepting a new player session 
 		auto newSession = std::make_shared<PlayerSession>(acceptedSock);
-		
 		/// connection establishing and then issuing recv
 		if (false == newSession->OnConnect())
 		{
 			newSession->Disconnect(DR_ONCONNECT_ERROR);
 		}
+		GConsoleLog->PrintOut(true, "[INFO] Accept\n");
+		Sleep(100000);
 	}
-
-
 }
 
 

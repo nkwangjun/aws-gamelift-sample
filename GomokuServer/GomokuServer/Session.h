@@ -26,6 +26,7 @@ public:
 	bool OnConnect();
 	virtual void OnRead(size_t len) {}
 	virtual void OnDisconnect(DisconnectReason dr) {}
+	virtual void OnLocalDisconnect(DisconnectReason dr) {}
 
 	template <class PKT_TYPE>
 	bool ParsePacket(PKT_TYPE& pkt)
