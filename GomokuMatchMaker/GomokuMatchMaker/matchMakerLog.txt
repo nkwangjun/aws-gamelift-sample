@@ -1,1 +1,7 @@
 Start MatchMaker
+[DEBUG] Client Connected: IP=127.0.0.1, PORT=58022
+[DEBUG] Client Connected: IP=127.0.0.1, PORT=58023
+Session::PostRecv Error : 10054
+[DEBUG] Client Disconnected: Reason=3 IP=127.0.0.1, PORT=58022 
+Session::PostRecv Error : 10054
+[DEBUG] Client Disconnected: Reason=3 IP=127.0.0.1, PORT=58023 

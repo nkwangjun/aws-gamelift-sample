@@ -30,7 +30,7 @@
 
 std::unique_ptr<GameLiftManager> GGameLiftManager(nullptr);
 
-GameLiftManager::GameLiftManager() : mActivated(false), mCheckTerminationCount(0), mPlayerReadyCount(0)
+GameLiftManager::GameLiftManager() : mActivated(true), mCheckTerminationCount(0), mPlayerReadyCount(0)
 {
 }
 
@@ -114,33 +114,16 @@ bool GameLiftManager::AcceptPlayerSession(std::shared_ptr<PlayerSession> psess, 
 {
 	FastSpinlockGuard lock(mLock);
 
-	auto outcome = Aws::GameLift::Server::AcceptPlayerSession(playerSessionId);
+	mGameSession->PlayerEnter(psess);
+	return true;
 
-	if (outcome.IsSuccess())
-	{
-		mGameSession->PlayerEnter(psess);
-		return true;
-	}
-	
-	GConsoleLog->PrintOut(true, "[GAMELIFT] AcceptPlayerSession Fail: %s\n", outcome.GetError().GetErrorMessage().c_str());
-	return false;
 }
 
 void GameLiftManager::RemovePlayerSession(std::shared_ptr<PlayerSession> psess, const std::string& playerSessionId)
 {
 	FastSpinlockGuard lock(mLock);
 
-	auto outcome = Aws::GameLift::Server::RemovePlayerSession(playerSessionId);
-	if (outcome.IsSuccess())
-	{
-		mGameSession->PlayerLeave(psess);
-	}
-	else
-	{
-		GConsoleLog->PrintOut(true, "[GAMELIFT] RemovePlayerSession Fail: %d %s\n", 
-			outcome.GetError().GetErrorType(),
-			outcome.GetError().GetErrorName().c_str());
-	}
+	mGameSession->PlayerLeave(psess);
 
 	if (++mCheckTerminationCount < MAX_PLAYER_PER_GAME)
 		return;
@@ -156,7 +139,6 @@ void GameLiftManager::RemovePlayerSession(std::shared_ptr<PlayerSession> psess, 
 void GameLiftManager::OnStartGameSession(Aws::GameLift::Server::Model::GameSession myGameSession)
 {
 	FastSpinlockGuard lock(mLock);
-	Aws::GameLift::Server::ActivateGameSession();
 
 	/// create a game session
 	mGameSession = std::make_shared<GameSession>();

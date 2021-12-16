@@ -39,24 +39,11 @@ void PlayerSession::PlayerReady(const std::string& playerId)
 		mPlayerSessionId = playerId;
 
 		/// Score info from GL
-		Aws::GameLift::Server::Model::DescribePlayerSessionsRequest req;
-		req.SetPlayerSessionId(mPlayerSessionId);
-		auto outcome = Aws::GameLift::Server::DescribePlayerSessions(req);
-		if (!outcome.IsSuccess())
-		{
-			GConsoleLog->PrintOut(true, "[PLAYER] DescribePlayerSessions Error : %s \n", outcome.GetError().GetErrorMessage().c_str());
-			mScore = -1000;
-			mPlayerName = std::string("nonamed");
-			return;
-		}
-		
-		const std::string& scoreinfo = outcome.GetResult().GetPlayerSessions()[0].GetPlayerData();
-		mScore = stoi(scoreinfo);
-		mPlayerName = outcome.GetResult().GetPlayerSessions()[0].GetPlayerId();
+
+		mScore = 99;
+		mPlayerName = playerId;
 
 		GConsoleLog->PrintOut(true, "[PLAYER] PlayerReady: %s \n", playerId.c_str());
-
-		GGameLiftManager->CheckReadyAll();
 	
 		return;
 	}

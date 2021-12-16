@@ -36,7 +36,6 @@ void IOThread::DoIocpJob()
 {
 	DWORD dwTransferred = 0;
 	LPOVERLAPPED overlapped = nullptr;
-	
 	ULONG_PTR completionKey = 0;
 
 	int ret = GetQueuedCompletionStatus(mCompletionPort, &dwTransferred, (PULONG_PTR)&completionKey, &overlapped, GQCS_TIMEOUT);

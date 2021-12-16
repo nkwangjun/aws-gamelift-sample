@@ -136,51 +136,27 @@ void MatchMaker::DoMatchMaking()
 				}
 
 				/// first, search availabile game sessions
-				Aws::GameLift::Model::SearchGameSessionsRequest searchReq;
-				searchReq.SetAliasId(mAliasId);
-				searchReq.SetFilterExpression("playerSessionCount=0 AND hasAvailablePlayerSessions=true");
-				auto searchResult = mGLClient->SearchGameSessions(searchReq);
-				if (searchResult.IsSuccess())
+				if (true)
 				{
-					auto availableGs = searchResult.GetResult().GetGameSessions();
-					if (availableGs.size() > 0)
-					{
-						auto ipAddress = availableGs[0].GetIpAddress();
-						auto port = availableGs[0].GetPort();
-						auto gameSessionId = availableGs[0].GetGameSessionId();
+					auto ipAddress = "127.0.0.1";
+					auto port = 1234;
+					auto gameSessionId = "gsid001";
 
-						std::cout << "CreatePlayerSessions on Searched Game Session\n";
-						CreatePlayerSessions(player1, player2, ipAddress, gameSessionId, port);
-					}
-					else
-					{
-						/// when no available game sessions...
-						Aws::GameLift::Model::CreateGameSessionRequest req;
-						req.SetAliasId(mAliasId);
-						req.SetMaximumPlayerSessionCount(MAX_PLAYER_PER_GAME);
-
-						auto outcome = mGLClient->CreateGameSession(req);
-						if (outcome.IsSuccess())
-						{
-							auto gs = outcome.GetResult().GetGameSession();
-							auto port = gs.GetPort();
-							auto ipAddress = gs.GetIpAddress();
-							auto gameSessionId = gs.GetGameSessionId();
-
-							std::cout << "CreatePlayerSessions on Created Game Session\n";
-							CreatePlayerSessions(player1, player2, ipAddress, gameSessionId, port);
-
-						}
-						else
-						{
-							GConsoleLog->PrintOut(true, "CreateGameSession error: %s\n", outcome.GetError().GetExceptionName().c_str());
-						}
-					}
+					std::cout << "CreatePlayerSessions on Searched Game Session\n";
+					CreatePlayerSessions(player1, player2, ipAddress, gameSessionId, port);
 				}
 				else
 				{
-					GConsoleLog->PrintOut(true, "SearchGameSessions error: %s\n", searchResult.GetError().GetExceptionName().c_str());
+					/// when no available game sessions...
+					// Create gamesession first
+					auto port = 1234;
+					auto ipAddress = "127.0.0.1";
+					auto gameSessionId = "gsid002";
+
+					std::cout << "CreatePlayerSessions on Created Game Session\n";
+					CreatePlayerSessions(player1, player2, ipAddress, gameSessionId, port);
 				}
+
 
 
 				/// remove players from the match queue
@@ -212,24 +188,13 @@ void MatchMaker::CreatePlayerSessions(std::shared_ptr<PlayerSession> player1, st
 	scoreMap[player2->GetPlayerName()] = std::to_string(player2->GetPlayerScore());
 	req.SetPlayerDataMap(scoreMap);
 
-	auto result = mGLClient->CreatePlayerSessions(req);
-	if (result.IsSuccess())
-	{
-		auto playerSessionList = result.GetResult().GetPlayerSessions();
-		auto player1SessionId = playerSessionList[0].GetPlayerSessionId();
-		auto player2SessionId = playerSessionList[1].GetPlayerSessionId();
+	//auto result = mGLClient->CreatePlayerSessions(req);
+	auto player1SessionId = player1->GetPlayerName();
+	auto player2SessionId = player2->GetPlayerName();
 
-		player1->SendMatchInfo(port, ipAddress, player1SessionId);
-		player2->SendMatchInfo(port, ipAddress, player2SessionId);
-	}
-	else
-	{
-		GConsoleLog->PrintOut(true, "CreatePlayerSessions error: %s\n", result.GetError().GetExceptionName().c_str());
-	
-		/// client should handle in case of "error"
-		player1->SendMatchInfo(port, ipAddress, std::string("psess-error"));
-		player2->SendMatchInfo(port, ipAddress, std::string("psess-error"));
-	}
+	player1->SendMatchInfo(port, ipAddress, player1SessionId);
+	player2->SendMatchInfo(port, ipAddress, player2SessionId);
+
 }
 
 
@@ -241,75 +206,9 @@ bool MatchMaker::PlayerLogin(std::shared_ptr<PlayerSession> psess, const std::st
 	/// password hashing first
 	std::size_t passwd_hash = std::hash<std::string>{}(playerPass);
 
-	GetItemRequest getItemRequest;
-	getItemRequest.SetTableName(mPlayerTableName);
-	Aws::StringStream ss;
-	ss << playerName;
-	AttributeValue hashKey;
-	hashKey.SetS(ss.str());
-	getItemRequest.AddKey("PlayerName", hashKey);
-	ss.str("");
 
-	auto result = mDDBClient->GetItem(getItemRequest);
-	if (!result.IsSuccess())
-	{
-		GConsoleLog->PrintOut(true, "GetItemRequest error: %s\n", result.GetError().GetMessageA().c_str());
-		return false;
-	}
-		
-	auto resultVal = result.GetResult().GetItem();
-
-	/// in case of first login, create a new player
-	if (0 == resultVal.size())
-	{
-		/// put request
-		PutItemRequest putItemRequest;
-		putItemRequest.SetTableName("GomokuPlayerInfo");
-		AttributeValue hashKeyAttribute;
-		ss << playerName;
-		hashKeyAttribute.SetS(ss.str());
-		putItemRequest.AddItem("PlayerName", hashKeyAttribute);
-		ss.str("");
-
-		AttributeValue passwdValue;
-		ss << passwd_hash;
-		passwdValue.SetS(ss.str());
-		putItemRequest.AddItem("Password", passwdValue);
-		ss.str("");
-
-		AttributeValue scoreValue;
-		scoreValue.SetN("1000");
-		putItemRequest.AddItem("Score", scoreValue);
-		AttributeValue winValue;
-		winValue.SetN("0");
-		putItemRequest.AddItem("Win", winValue);
-		AttributeValue loseValue;
-		loseValue.SetN("0");
-		putItemRequest.AddItem("Lose", loseValue);
-
-		auto putResult = mDDBClient->PutItem(putItemRequest);
-
-		if (!putResult.IsSuccess())
-		{
-			GConsoleLog->PrintOut(true, "PutItemRequest error: %s\n", putResult.GetError().GetMessageA().c_str());
-			return false;
-		}
-
-		psess->SetPlayerInfo(playerName, 1000);
-	}
-	else
-	{
-		ss << passwd_hash;
-
-		if (resultVal["Password"].GetS() != ss.str())
-		{
-			GConsoleLog->PrintOut(true, "Password Mismatch: %s\n", playerName.c_str());
-			return false;
-		}
-
-		int score = stoi(resultVal["Score"].GetN());
-		psess->SetPlayerInfo(playerName, score);
-	}
+	int score = 98;
+	psess->SetPlayerInfo(playerName, score);
 
 	return true;
 }

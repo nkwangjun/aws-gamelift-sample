@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	const std::string& ipAddr = iniReader.Get("config", "SERVER_IP", "127.0.0.1");
+	const std::string& ipAddr = iniReader.Get("config", "SERVER_IPP", "127.0.0.1");
 	int portNum = iniReader.GetInteger("config", "PORT_NUM", 5999);
 	std::string playerName = iniReader.Get("config", "PLAYER_NAME", "DefaultName");
 	std::string playerPass = iniReader.Get("config", "PLAYER_PASSWD", "DefaultPass");
@@ -48,14 +48,13 @@ int main(int argc, char* argv[])
 	GMatchMaker.reset(new NetController);
 	GGameServer.reset(new NetController);
 
-
 	if (false == GMatchMaker->Connect(ipAddr, portNum))
 	{
 		std::cout << "MatchMaker Connect Error\n";
 		return 0;
 	}
-		
 
+	std::cout << "Test";
 	GGuiController->Initialize(&argc, argv);
 	GGuiController->DoEventLoop();
 
