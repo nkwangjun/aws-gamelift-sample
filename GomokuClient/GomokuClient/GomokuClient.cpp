@@ -53,8 +53,6 @@ int main(int argc, char* argv[])
 		std::cout << "MatchMaker Connect Error\n";
 		return 0;
 	}
-
-	std::cout << "Test";
 	GGuiController->Initialize(&argc, argv);
 	GGuiController->DoEventLoop();
 

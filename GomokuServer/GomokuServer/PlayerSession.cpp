@@ -45,6 +45,8 @@ void PlayerSession::PlayerReady(const std::string& playerId)
 
 		GConsoleLog->PrintOut(true, "[PLAYER] PlayerReady: %s \n", playerId.c_str());
 	
+		GGameLiftManager->CheckReadyAll();
+
 		return;
 	}
 

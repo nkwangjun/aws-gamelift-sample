@@ -159,12 +159,8 @@ void NetController::ProcessPacket()
 				GameStartBroadcast recvData;
 				bool ret = mRecvBuffer.Read((char*)&recvData, recvData.mSize);
 				assert(ret);
-			
-				std::cout << "Start " << &recvData;
-
 				if (mPlayerId == std::string(recvData.mFirstPlayerId))
 				{
-					
 					GGuiController->OnGameStart(StoneType::STONE_BLACK, std::string(recvData.mOpponentName));
 				}
 				else
@@ -179,20 +175,15 @@ void NetController::ProcessPacket()
 				BoardStatusBroadcast recvData;
 				bool ret = mRecvBuffer.Read((char*)&recvData, recvData.mSize);
 				assert(ret);
-
-				std::cout << "Status " << &recvData;
 				GGuiController->OnStatusChange(recvData);
 			}
 			break;
 
 		case PKT_MC_WAIT:
 			{
-				
-
 				MatchWait recvData;
 				bool ret = mRecvBuffer.Read((char*)&recvData, recvData.mSize);
 				assert(ret);
-				std::cout << "Wait " << &recvData;
 				GGuiController->OnMatchWait(recvData.mIsOK);
 			}
 			break;
@@ -205,18 +196,13 @@ void NetController::ProcessPacket()
 
 				if (std::string(recvData.mPlayerId) == std::string("psess-error"))
 				{
-					std::cout << "PlayerSession Creation Error. Please restart the client.\n";
 					return;
 				}
 
 				GGuiController->OnMatchComplete();
-
-				std::cout << "PlayerSession connect:" << recvData.mIpAddress << "  " << recvData.mPort;
-
 				if (GGameServer->Connect(recvData.mIpAddress, recvData.mPort))
 				{
 					GGameServer->RequestGameStart(std::string(recvData.mPlayerId));
-					std::cout << "GameServer Connect Successful\n";
 				}
 				else
 				{
@@ -247,8 +233,6 @@ void NetController::RequestMatch()
 
 void NetController::RequestGameStart(const std::string& playerId)
 {
-	std::cout << "RequestGameStart !!!!!\n";
-
 	if (!mConnected)
 		std::cout << "Not Connected\n";
 		return;
