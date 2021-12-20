@@ -50,7 +50,7 @@ private:
     FastSpinlock mGameSessionLock;
 
 private:
-    void PlayerEnter(std::shared_ptr<PlayerSession> psess);
+    bool PlayerEnter(std::shared_ptr<PlayerSession> psess);
     void PlayerLeave(std::shared_ptr<PlayerSession> psess);
 
     std::shared_ptr<PlayerSession> mPlayerBlack;

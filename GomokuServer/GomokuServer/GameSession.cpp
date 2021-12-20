@@ -23,18 +23,25 @@
 GameSession::GameSession() : mGameStatus(GameStatus::GS_NOT_STARTED), mCurrentTurn(StoneType::STONE_NONE)
 {}
 
-void GameSession::PlayerEnter(std::shared_ptr<PlayerSession> psess)
+bool GameSession::PlayerEnter(std::shared_ptr<PlayerSession> psess)
 {
     FastSpinlockGuard lock(mGameSessionLock);
 
     if (mGameStatus != GameStatus::GS_NOT_STARTED)
     {
         GConsoleLog->PrintOut(true, "[PlayerEnter Denied] Game has already started.\n", psess->GetPlayerSessionId().c_str());
-        return;
+        return false;
     }
 
     if (mPlayerBlack)
     {
+		// Name Check!
+		if (mPlayerBlack->GetPlayerName() == psess->GetPlayerName())
+		{
+			GConsoleLog->PrintOut(true, "[PlayerEnter Denied] already entered.\n", psess->GetPlayerSessionId().c_str());
+			return false;
+		}
+
         /// Game Ready!
         mPlayerWhite = psess;
         mGameStatus = GameStatus::GS_STARTED;
@@ -44,6 +51,8 @@ void GameSession::PlayerEnter(std::shared_ptr<PlayerSession> psess)
     {
         mPlayerBlack = psess;
     }
+
+	return true;
 }
 
 void GameSession::PlayerLeave(std::shared_ptr<PlayerSession> psess)
@@ -247,7 +256,6 @@ void GameSession::SendGameResult(bool isBlackWin) const
     auto whiteJson = MakeResultJsonString(mPlayerWhite->GetPlayerName(), whiteNew, isBlackWin ? 0 : 1, isBlackWin ? 1 : 0);
 
     /// Send to SQS
-    GGameLiftManager->SendGameResultToSQS(blackJson, whiteJson);
-
+    // GGameLiftManager->SendGameResultToSQS(blackJson, whiteJson);
 }
 

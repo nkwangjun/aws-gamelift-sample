@@ -34,12 +34,19 @@ PlayerSession::~PlayerSession()
 
 void PlayerSession::LocalPlayerReady(const std::string& playerId)
 {
-	mPlayerSessionId = playerId;
-	mPlayerName = playerId;
-	mScore = 98;
-	GGameLiftManager->AcceptPlayerSession(std::static_pointer_cast<PlayerSession>(shared_from_this()), playerId);
-	GConsoleLog->PrintOut(true, "[PLAYER] PlayerReady: %s \n", playerId.c_str());
-	return;
+	if (GGameLiftManager->AcceptPlayerSession(std::static_pointer_cast<PlayerSession>(shared_from_this()), playerId))
+	{
+		mPlayerSessionId = playerId;
+		mPlayerName = playerId;
+		mScore = 98;
+	
+		GConsoleLog->PrintOut(true, "[PLAYER] PlayerReady: %s \n", playerId.c_str());
+		GGameLiftManager->CheckReadyAll();
+		return;
+	}
+
+	// Disconnect error player
+	Disconnect(DR_UNAUTH);
 }
 
 void PlayerSession::PlayerReady(const std::string& playerId)
@@ -97,6 +104,7 @@ void PlayerSession::OnLocalDisconnect(DisconnectReason dr)
 {
 	if (IsValid())
 	{
+		GGameLiftManager->RemovePlayerSession(std::static_pointer_cast<PlayerSession>(shared_from_this()), mPlayerSessionId);
 		mPlayerSessionId.clear();
 	}
 }

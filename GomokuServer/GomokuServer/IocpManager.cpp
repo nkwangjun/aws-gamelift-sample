@@ -57,7 +57,7 @@ bool IocpManager::Initialize(int& listenPort)
 
 	listenPort = ntohs(serveraddr.sin_port);
 
-	std::cout << "listenPort:" << listenPort;
+	std::cout << "listenPort:" << listenPort << std::endl;
 
 	return true;
 }

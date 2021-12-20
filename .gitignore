@@ -19,3 +19,4 @@ GomokuServer/.vs/
 GomokuServer/ipch/
 GomokuClient/GomokuClient.opensdf
 GomokuMatchMaker/
+GomokuClient/GomokuClient/x64/

@@ -29,8 +29,8 @@ int main(int argc, char* argv[])
 {
 	try
 	{
-		Aws::SDKOptions options;
-		Aws::InitAPI(options);
+		// Aws::SDKOptions options;
+		// Aws::InitAPI(options);
 
 		int portNum = 1234;
 		/// listen port override rather than dynamic port by OS
@@ -53,16 +53,13 @@ int main(int argc, char* argv[])
 
 		/// GameLift
 		GGameLiftManager.reset(new GameLiftManager);
-
+		/*
 		const std::string& sqs_endpoint = iniReader.Get("config", "SQS_ENDPOINT", "SQS_ENDPOINT");
 		const std::string& sqs_role = iniReader.Get("config", "ROLE_ARN", "ROLE_ARN");
 		const std::string& sqs_region = iniReader.Get("config", "SQS_REGION", "SQS_REGION");
 
-		//?
-
 		GGameLiftManager->SetSQSClientInfo(sqs_region, sqs_endpoint, sqs_role);
-
-		GGameLiftManager->OnStartGameSession(Aws::GameLift::Server::Model::GameSession());
+		*/
 
 		/// Global Managers
 		GIocpManager.reset(new IocpManager);
@@ -71,10 +68,8 @@ int main(int argc, char* argv[])
 			return -1;
 
 		/// Gamelift init/start!
-		/*
 		if (false == GGameLiftManager->InitializeGameLift(portNum))
 			return -1;
-		*/
 
 		if (false == GIocpManager->StartIoThreads())
 			return -1;
@@ -88,7 +83,7 @@ int main(int argc, char* argv[])
 		GIocpManager->Finalize();
 
 		/// Gamelift end!
-		//GGameLiftManager->FinalizeGameLift();
+		GGameLiftManager->FinalizeGameLift();
 
 		GConsoleLog->PrintOut(true, "End Server\n");
 

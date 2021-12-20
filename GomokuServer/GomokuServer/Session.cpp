@@ -201,13 +201,12 @@ void Session::SendCompletion(DWORD transferred)
 	}
 }
 
+
 void Session::RecvCompletion(DWORD transferred)
 {
 	mRecvBuffer.Commit(transferred);
 	OnRead(transferred);
 }
-
-
 
 
 void Session::EchoBack()

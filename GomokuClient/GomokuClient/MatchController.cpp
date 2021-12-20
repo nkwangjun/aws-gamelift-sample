@@ -107,10 +107,10 @@ bool MatchController::LocalCheckMatchStatus()
 
 	if (port > 0)
 	{
-		completed = true;
 		if (GGameServer->Connect(ipAddr, port))
 		{
 			GGameServer->RequestGameStart(psessId);
+			completed = true;
 		}
 		else
 		{
@@ -134,6 +134,8 @@ void  MatchController::LocalMatch() {
 
 	GGuiController->OnMatchWait(true);
 
+	int i = 0;
+
 	while (true)
 	{
 		Sleep(1000);
@@ -142,6 +144,7 @@ void  MatchController::LocalMatch() {
 			GGuiController->OnMatchComplete();
 			break;
 		}
+		std::cout << "re check:" << i++ << std::endl;
 	}
 }
 

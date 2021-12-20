@@ -47,7 +47,7 @@ static Aws::Config::Profile GetCurrentProfile(void);
 Aws::Auth::AWSCredentials GetAWSCredentials(std::string);
 //
 
-GameLiftManager::GameLiftManager() : mActivated(true), mCheckTerminationCount(0), mPlayerReadyCount(0)
+GameLiftManager::GameLiftManager() : mActivated(false), mCheckTerminationCount(0), mPlayerReadyCount(0)
 {
 }
 
@@ -55,17 +55,20 @@ bool GameLiftManager::InitializeGameLift(int listenPort)
 {
 	try
 	{
+		/*
 		auto initOutcome = Aws::GameLift::Server::InitSDK();
 
 		if (!initOutcome.IsSuccess())
 		{
 			return false;
 		}
+		*/
 
 		std::string serverOut("C:\\game\\serverOut.log");
 		std::vector<std::string> logPaths;
 		logPaths.push_back(serverOut);
 
+		/*
 		auto processReadyParameter = Aws::GameLift::Server::ProcessParameters(
 			std::bind(&GameLiftManager::OnStartGameSession, this, std::placeholders::_1),
 			std::bind(&GameLiftManager::OnProcessTerminate, this),
@@ -77,10 +80,13 @@ bool GameLiftManager::InitializeGameLift(int listenPort)
 
 		if (!readyOutcome.IsSuccess())
 			return false;
-
+		*/
 		mActivated = true;
 
 		GConsoleLog->PrintOut(true, "[GAMELIFT] ProcessReady Success (Listen port:%d)\n", listenPort);
+
+		// start session here
+		OnStartGameSession(Aws::GameLift::Server::Model::GameSession());
 
 		return true;
 
@@ -142,31 +148,28 @@ void GameLiftManager::SendGameResultToSQS(const std::string& blackJson, const st
 
 void GameLiftManager::FinalizeGameLift()
 {
-	Aws::GameLift::Server::Destroy();
+	// Aws::GameLift::Server::Destroy();
 }
 
 bool GameLiftManager::AcceptPlayerSession(std::shared_ptr<PlayerSession> psess, const std::string& playerSessionId)
 {
 	FastSpinlockGuard lock(mLock);
-	mGameSession->PlayerEnter(psess);
-	return true;
+	if (mGameSession->PlayerEnter(psess))
+	{
+		return true;
+	}
+
+	return false;
 }
 
 void GameLiftManager::RemovePlayerSession(std::shared_ptr<PlayerSession> psess, const std::string& playerSessionId)
 {
 	FastSpinlockGuard lock(mLock);
 
-	auto outcome = Aws::GameLift::Server::RemovePlayerSession(playerSessionId);
-	if (outcome.IsSuccess())
-	{
-		mGameSession->PlayerLeave(psess);
-	}
-	else
-	{
-		GConsoleLog->PrintOut(true, "[GAMELIFT] RemovePlayerSession Fail: %d %s\n",
-			outcome.GetError().GetErrorType(),
-			outcome.GetError().GetErrorName().c_str());
-	}
+	mGameSession->PlayerLeave(psess);
+
+	// remove player
+	InterlockedDecrement(&mPlayerReadyCount);
 
 	if (++mCheckTerminationCount < MAX_PLAYER_PER_GAME)
 		return;
@@ -206,7 +209,7 @@ void GameLiftManager::TerminateGameSession(int exitCode)
 {
 	mGameSession.reset(); ///< explicitly release
 
-	Aws::GameLift::Server::ProcessEnding();
+	// Aws::GameLift::Server::ProcessEnding();
 
 	mActivated = false;
 
