@@ -76,6 +76,9 @@ void MatchMaker::SetUpAwsClient(const std::string& region)
 		config.endpointOverride = "127.0.0.1:9080";
 	}
 
+	config.scheme = Aws::Http::Scheme::HTTP;
+	config.endpointOverride = "127.0.0.1:9080";
+
 	mGLClient = Aws::MakeShared<Aws::GameLift::GameLiftClient>("GameLiftMatchMaker", config);
 
 }
@@ -135,29 +138,27 @@ void MatchMaker::DoMatchMaking()
 					continue;
 				}
 
-				/// first, search availabile game sessions
-				if (true)
-				{
-					auto ipAddress = "127.0.0.1";
-					auto port = 1234;
-					auto gameSessionId = "gsid001";
+				/// when no available game sessions...
+				Aws::GameLift::Model::CreateGameSessionRequest req;
+				req.SetFleetId("Fleet-123");
+				req.SetMaximumPlayerSessionCount(MAX_PLAYER_PER_GAME);
 
-					std::cout << "CreatePlayerSessions on Searched Game Session\n";
-					CreatePlayerSessions(player1, player2, ipAddress, gameSessionId, port);
-				}
-				else
+				auto outcome = mGLClient->CreateGameSession(req);
+				if (outcome.IsSuccess())
 				{
-					/// when no available game sessions...
-					// Create gamesession first
-					auto port = 1234;
-					auto ipAddress = "127.0.0.1";
-					auto gameSessionId = "gsid002";
+					auto gs = outcome.GetResult().GetGameSession();
+					auto port = gs.GetPort();
+					auto ipAddress = gs.GetIpAddress();
+					auto gameSessionId = gs.GetGameSessionId();
 
 					std::cout << "CreatePlayerSessions on Created Game Session\n";
 					CreatePlayerSessions(player1, player2, ipAddress, gameSessionId, port);
+
 				}
-
-
+				else
+				{
+					GConsoleLog->PrintOut(true, "CreateGameSession error: %s\n", outcome.GetError().GetExceptionName().c_str());
+				}
 
 				/// remove players from the match queue
 				mMatchLock.EnterWriteLock();
@@ -188,7 +189,7 @@ void MatchMaker::CreatePlayerSessions(std::shared_ptr<PlayerSession> player1, st
 	scoreMap[player2->GetPlayerName()] = std::to_string(player2->GetPlayerScore());
 	req.SetPlayerDataMap(scoreMap);
 
-	//auto result = mGLClient->CreatePlayerSessions(req);
+	auto result = mGLClient->CreatePlayerSessions(req);
 	auto player1SessionId = player1->GetPlayerName();
 	auto player2SessionId = player2->GetPlayerName();
 
