@@ -29,10 +29,10 @@ int main(int argc, char* argv[])
 {
 	try
 	{
-		// Aws::SDKOptions options;
-		// Aws::InitAPI(options);
+		Aws::SDKOptions options;
+		Aws::InitAPI(options);
 
-		int portNum = 1234;
+		int portNum = 33435;
 		/// listen port override rather than dynamic port by OS
 		if (argc >= 2)
 			portNum = atoi(argv[1]);

@@ -55,21 +55,18 @@ bool GameLiftManager::InitializeGameLift(int listenPort)
 {
 	try
 	{
-		/*
 		auto initOutcome = Aws::GameLift::Server::InitSDK();
 
 		if (!initOutcome.IsSuccess())
 		{
 			return false;
 		}
-		*/
 
 		std::string serverOut("C:\\game\\serverOut.log");
 		std::vector<std::string> logPaths;
 		logPaths.push_back(serverOut);
 
-		/*
-		auto processReadyParameter = Aws::GameLift::Server::ProcessParameters(
+		Aws::GameLift::Server::ProcessParameters processReadyParameter = Aws::GameLift::Server::ProcessParameters(
 			std::bind(&GameLiftManager::OnStartGameSession, this, std::placeholders::_1),
 			std::bind(&GameLiftManager::OnProcessTerminate, this),
 			std::bind(&GameLiftManager::OnHealthCheck, this),
@@ -80,13 +77,10 @@ bool GameLiftManager::InitializeGameLift(int listenPort)
 
 		if (!readyOutcome.IsSuccess())
 			return false;
-		*/
+
 		mActivated = true;
 
 		GConsoleLog->PrintOut(true, "[GAMELIFT] ProcessReady Success (Listen port:%d)\n", listenPort);
-
-		// start session here
-		OnStartGameSession(Aws::GameLift::Server::Model::GameSession());
 
 		return true;
 
@@ -148,7 +142,7 @@ void GameLiftManager::SendGameResultToSQS(const std::string& blackJson, const st
 
 void GameLiftManager::FinalizeGameLift()
 {
-	// Aws::GameLift::Server::Destroy();
+	Aws::GameLift::Server::Destroy();
 }
 
 bool GameLiftManager::AcceptPlayerSession(std::shared_ptr<PlayerSession> psess, const std::string& playerSessionId)
@@ -186,6 +180,8 @@ void GameLiftManager::OnStartGameSession(Aws::GameLift::Server::Model::GameSessi
 {
 	FastSpinlockGuard lock(mLock);
 
+	Aws::GameLift::Server::ActivateGameSession();
+
 	/// create a game session
 	mGameSession = std::make_shared<GameSession>();
 
@@ -209,7 +205,7 @@ void GameLiftManager::TerminateGameSession(int exitCode)
 {
 	mGameSession.reset(); ///< explicitly release
 
-	// Aws::GameLift::Server::ProcessEnding();
+	Aws::GameLift::Server::ProcessEnding();
 
 	mActivated = false;
 
