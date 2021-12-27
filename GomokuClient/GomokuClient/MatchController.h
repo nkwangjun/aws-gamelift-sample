@@ -23,6 +23,10 @@ public:
     : mMatchApiEndpoint(matchApiEndpoint), mMatchStarted(false)
     {}
 
+	MatchController(const std::string& matchApiEndpoint, std::string ip, int p)
+		:mMatchApiEndpoint(matchApiEndpoint), ipAddr(ip), port(p), mMatchStarted(false)
+	{}
+
     void RequestMatch();
 
     bool CheckMatchStatus();
@@ -39,6 +43,8 @@ private:
     
     std::atomic_bool mMatchStarted;
     std::string mMatchTicketId;
+	std::string ipAddr;
+	int port;
 
 };
 

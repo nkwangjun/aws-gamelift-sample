@@ -148,6 +148,7 @@ void GameLiftManager::FinalizeGameLift()
 bool GameLiftManager::AcceptPlayerSession(std::shared_ptr<PlayerSession> psess, const std::string& playerSessionId)
 {
 	FastSpinlockGuard lock(mLock);
+
 	if (mGameSession->PlayerEnter(psess))
 	{
 		return true;

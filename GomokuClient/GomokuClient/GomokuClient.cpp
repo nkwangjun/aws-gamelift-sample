@@ -37,16 +37,19 @@ int main(int argc, char* argv[])
     std::string matchApiEndpoint = iniReader.Get("config", "MATCH_SERVER_API", "https....");
     std::string playerName = iniReader.Get("config", "PLAYER_NAME", "DefaultName");
     std::string playerPass = iniReader.Get("config", "PLAYER_PASSWD", "DefaultPass");
+	std::string ipAddr = "";
+	int port = 12345;
 
     /// override for test
-    if (argc >= 3)
+    if (argc >= 4)
     {
-        playerName = std::string(argv[1]);
-        playerPass = std::string(argv[2]);
+        ipAddr = std::string(argv[1]);
+		port = atoi(argv[2]);
+		playerName = std::string(argv[3]);
     }
 
     GGuiController.reset(new GUIController(playerName.c_str(), playerPass.c_str()));
-    GMatchMaker.reset(new MatchController(matchApiEndpoint));
+    GMatchMaker.reset(new MatchController(matchApiEndpoint, ipAddr, port));
     GGameServer.reset(new NetController);
 
     GGuiController->Initialize(&argc, argv);
